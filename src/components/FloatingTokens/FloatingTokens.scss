@@ -1,0 +1,43 @@
+.floating-tokens-layer {
+  position: absolute;
+  inset: 0;
+
+  z-index: 12;
+
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.floating-token {
+  position: absolute;
+
+  user-select: none;
+  pointer-events: none;
+
+  will-change:
+    top,
+    left,
+    transform,
+    opacity;
+
+  transition:
+    left 700ms cubic-bezier(.22,1,.36,1),
+    top 700ms cubic-bezier(.22,1,.36,1),
+    transform 700ms cubic-bezier(.22,1,.36,1),
+    opacity 450ms ease;
+
+  animation:
+    floating-idle 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes floating-idle {
+
+  from {
+    translate: 0 -4px;
+  }
+
+  to {
+    translate: 0 6px;
+  }
+
+}

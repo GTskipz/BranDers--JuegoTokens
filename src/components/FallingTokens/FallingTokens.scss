@@ -1,0 +1,99 @@
+@use "../../styles/variables" as *;
+
+.falling-tokens-layer {
+  position: absolute;
+  inset: 11% 0 0;
+
+  z-index: 20;
+
+  overflow: hidden;
+
+  pointer-events: none;
+  touch-action: none;
+}
+
+.falling-tokens-layer--running {
+  pointer-events: auto;
+}
+
+.falling-token {
+  position: absolute;
+
+  top: 0;
+  left: var(--token-x);
+
+  width: var(--token-size);
+  aspect-ratio: 1;
+
+  padding: 0;
+  border: 0;
+
+  display: grid;
+  place-items: center;
+
+  background: transparent;
+
+  transform: translateY(-130%) rotate(0deg);
+
+  animation:
+    token-fall var(--fall-duration) linear forwards,
+    token-spin var(--fall-duration) linear forwards;
+
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.falling-token img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+  object-fit: contain;
+
+  pointer-events: none;
+  user-select: none;
+}
+
+.falling-token__points {
+  position: absolute;
+
+  padding: 5px 9px;
+  border-radius: $radius-full;
+
+  background: rgba($color-black, 0.75);
+  color: $color-white;
+
+  font-size: clamp(0.55rem, 1.4vw, 0.9rem);
+  font-weight: 900;
+
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes token-fall {
+  from {
+    top: 0;
+  }
+
+  to {
+    top: 112%;
+  }
+}
+
+@keyframes token-spin {
+  from {
+    rotate: 0deg;
+  }
+
+  to {
+    rotate: var(--token-rotation);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .falling-token {
+    animation-duration: 1ms;
+  }
+}

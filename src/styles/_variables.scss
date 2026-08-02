@@ -1,0 +1,51 @@
+// ===============================
+// Colores
+// ===============================
+
+$color-white: #ffffff;
+$color-black: #000000;
+
+$mc-red: #ed1c2e;
+$mc-orange: #f15a24;
+$mc-yellow: #fdb913;
+$mc-purple: #a3238e;
+
+// Gradientes
+
+$primary-gradient: linear-gradient(
+  90deg,
+  $mc-purple 0%,
+  $mc-red 55%,
+  $mc-orange 100%
+);
+
+// ===============================
+// Layout
+// ===============================
+
+$screen-width: 1080px;
+$screen-height: 1920px;
+
+// ===============================
+// Bordes
+// ===============================
+
+$radius-full: 999px;
+$radius-card: 40px;
+
+// ===============================
+// Duraciones
+// ===============================
+
+$transition-fast: .3s;
+$transition-normal: .6s;
+$transition-slow: .9s;
+
+// ===============================
+// Z-index
+// ===============================
+
+$z-background: 1;
+$z-wave: 5;
+$z-content: 20;
+$z-overlay: 100;

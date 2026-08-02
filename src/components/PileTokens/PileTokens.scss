@@ -1,0 +1,119 @@
+.pile-tokens-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 13;
+
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pile-token {
+  position: absolute;
+  display: block;
+
+  user-select: none;
+  pointer-events: none;
+
+  will-change:
+    left,
+    top,
+    translate,
+    rotate,
+    transform,
+    opacity;
+
+  transition:
+    left 680ms cubic-bezier(0.65, 0, 0.35, 1),
+    top 680ms cubic-bezier(0.65, 0, 0.35, 1),
+    transform 680ms cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 260ms ease;
+}
+
+/* =========================
+   TEMBLOR EN REPOSO
+========================= */
+
+.pile-tokens-layer--home,
+.pile-tokens-layer--score,
+.pile-tokens-layer--prize {
+  .pile-token {
+    animation:
+      pile-token-shake
+      var(--pile-idle-duration)
+      ease-in-out
+      var(--pile-idle-delay)
+      infinite;
+  }
+}
+
+@keyframes pile-token-shake {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+
+  18% {
+    translate: -1px 0;
+    rotate: -0.35deg;
+  }
+
+  36% {
+    translate: 1px -1px;
+    rotate: 0.4deg;
+  }
+
+  52% {
+    translate: 0 1px;
+    rotate: -0.2deg;
+  }
+
+  70% {
+    translate: -1px -1px;
+    rotate: 0.3deg;
+  }
+
+  86% {
+    translate: 1px 0;
+    rotate: -0.25deg;
+  }
+}
+
+/* Variaciones para que no compartan el mismo movimiento */
+
+.pile-token:nth-child(2n) {
+  animation-direction: alternate;
+}
+
+.pile-token:nth-child(3n) {
+  animation-timing-function: linear;
+}
+
+.pile-token:nth-child(4n) {
+  animation-direction: alternate-reverse;
+}
+
+/* =========================
+   SALIDA
+========================= */
+
+.pile-tokens-layer--hidden,
+.pile-tokens-layer--instructions,
+.pile-tokens-layer--game {
+  .pile-token {
+    animation: none;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+}
+
+/* =========================
+   ACCESIBILIDAD
+========================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .pile-token {
+    animation: none !important;
+    transition-duration: 1ms;
+  }
+}

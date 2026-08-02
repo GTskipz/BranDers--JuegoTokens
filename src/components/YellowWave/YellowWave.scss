@@ -1,0 +1,28 @@
+@use "../../styles/variables" as *;
+
+.yellow-wave {
+  position: absolute;
+
+  left: 50%;
+  bottom: -1px;
+
+  width: 122%;
+  height: 48%;
+
+  background: $mc-yellow;
+
+  mask-image: url("../../assets/svg/yellow-wave.svg");
+  mask-repeat: no-repeat;
+  mask-position: center bottom;
+  mask-size: 100% 100%;
+
+  -webkit-mask-image: url("../../assets/svg/yellow-wave.svg");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center bottom;
+  -webkit-mask-size: 100% 100%;
+
+  transform: translateX(-50%);
+
+  pointer-events: none;
+  user-select: none;
+}

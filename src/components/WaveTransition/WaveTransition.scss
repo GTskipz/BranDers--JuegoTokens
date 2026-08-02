@@ -1,0 +1,84 @@
+.wave-transition {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wave-transition__red,
+.wave-transition__yellow {
+  position: absolute;
+  inset: 0;
+}
+
+/* La capa roja permanece fija.
+   Solo se transforma la figura .red-wave. */
+.wave-transition__red {
+  z-index: 2;
+}
+
+/* La amarilla pasa por debajo de la roja
+   mientras comienza a subir. */
+.wave-transition__yellow {
+  z-index: 1;
+
+  transition: transform 600ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* La forma roja conserva su posición.
+   Únicamente disminuye su grosor. */
+.wave-transition__red .red-wave {
+  transform: translateX(-50%) scaleY(1);
+  transform-origin: center center;
+
+  transition:
+    transform 520ms cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 100ms linear 480ms;
+}
+
+/* =========================
+   HOME
+========================= */
+
+.wave-transition--home {
+  .wave-transition__red .red-wave {
+    transform: translateX(-50%) scaleY(1);
+    opacity: 1;
+  }
+
+  .wave-transition__yellow {
+    transform: translateY(100%);
+  }
+}
+
+/* =========================
+   TRANSICIÓN
+========================= */
+
+.wave-transition--to-instructions {
+  .wave-transition__red .red-wave {
+    transform: translateX(-50%) scaleY(0);
+    opacity: 0;
+  }
+
+  .wave-transition__yellow {
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   INSTRUCCIONES
+========================= */
+
+.wave-transition--instructions {
+  .wave-transition__red .red-wave {
+    transform: translateX(-50%) scaleY(0);
+    opacity: 0;
+  }
+
+  .wave-transition__yellow {
+    transform: translateY(0);
+  }
+}

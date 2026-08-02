@@ -1,0 +1,148 @@
+@use "../../styles/variables" as *;
+
+.instructions-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  // Siempre transparente para no tapar YellowWave.
+  background: transparent;
+
+  pointer-events: auto;
+}
+
+/* =========================
+   TARJETA
+========================= */
+
+.instructions-card {
+  position: absolute;
+  z-index: $z-content;
+
+  top: 19.5%;
+  left: 7%;
+
+  width: 86%;
+  height: 47%;
+
+  padding: 7% 6%;
+
+  border: 14px solid transparent;
+  border-radius: 30px;
+
+  background:
+    linear-gradient($color-white, $color-white) padding-box,
+    $primary-gradient border-box;
+
+  color: $color-black;
+
+  transform-origin: center top;
+
+  transition:
+    transform 420ms cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 160ms ease;
+}
+
+.instructions-card-content {
+  font-size: clamp(1rem, 2.1vw, 1.8rem);
+  font-weight: 800;
+  line-height: 1.25;
+
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.instructions-card-content p {
+  margin: 0;
+}
+
+.instructions-card-content p + p {
+  margin-top: 9%;
+}
+
+/* =========================
+   BOTÓN
+========================= */
+
+.instructions-play-button {
+  position: absolute;
+  z-index: $z-content;
+
+  top: 73.8%;
+  left: 50%;
+
+  width: 34%;
+  height: 6.2%;
+
+  padding: 0;
+  border: 0;
+  border-radius: $radius-full;
+
+  background: $primary-gradient;
+  color: $color-white;
+
+  font-size: clamp(1.3rem, 2.8vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1;
+
+  transform: translateX(-50%);
+
+  transition:
+    opacity 220ms ease,
+    transform 260ms ease;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* =========================
+   ENTRADA
+========================= */
+
+.instructions-screen--entering {
+  pointer-events: none;
+
+  .instructions-card {
+    opacity: 0;
+    transform: scaleY(0.08);
+  }
+
+  .instructions-card-content {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .instructions-play-button {
+    opacity: 0;
+    transform: translateX(-50%) translateY(18px);
+  }
+}
+
+/* =========================
+   ESTADO ACTIVO
+========================= */
+
+.instructions-screen--active {
+  .instructions-card {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  .instructions-card-content {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 280ms;
+  }
+
+  .instructions-play-button {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    transition-delay: 200ms;
+  }
+}

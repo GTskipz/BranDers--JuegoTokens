@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="1440"
+   height="668.10498"
+   viewBox="0 0 1440 668.10498"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <color-profile
+       name="Adobe RGB (1998)"
+       xlink:href="data:application/vnd.iccprofile;base64,AAACVEFEQkUCEAAAbW50clJHQiBYWVogB88ABgADAAAAAAAAYWNzcEFQUEwAAAAAbm9uZQAAAAAAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1BREJFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKY3BydAAAAPwAAAAyZGVzYwAAATAAAACQd3RwdAAAAcAAAAAUYmtwdAAAAdQAAAAUclRSQwAAAegAAAAOZ1RSQwAAAfgAAAAOYlRSQwAAAggAAAAOclhZWgAAAhgAAAAUZ1hZWgAAAiwAAAAUYlhZWgAAAkAAAAAUdGV4dAAAAABDb3B5cmlnaHQgMTk5OSBBZG9iZSBTeXN0ZW1zIEluY29ycG9yYXRlZAAAAGRlc2MAAAAAAAAAEUFkb2JlIFJHQiAoMTk5OCkAAAAAAAAAABEAQQBkAG8AYgBlACAAUgBHAEIAIAAoADEAOQA5ADgAKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFhZWiAAAAAAAADzUQABAAAAARbMWFlaIAAAAAAAAAAAAAAAAAAAAABjdXJ2AAAAAAAAAAECMwAAY3VydgAAAAAAAAABAjMAAGN1cnYAAAAAAAAAAQIzAABYWVogAAAAAAAAnBgAAE+lAAAE/FhZWiAAAAAAAAA0jQAAoCwAAA+VWFlaIAAAAAAAACYxAAAQLwAAvpw="
+       id="color-profile1" />
+    <linearGradient
+       x1="0"
+       y1="0"
+       x2="1"
+       y2="0"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(2922.7587,0,0,2408.2079,-741.37938,712.25613)"
+       spreadMethod="pad"
+       id="linearGradient57">
+      <stop
+         style="stop-opacity:1;stop-color:#962680 icc-color(Adobe RGB (1998), 0.50587463, 0.16470337, 0.4901886);"
+         offset="0"
+         id="stop55" />
+      <stop
+         style="stop-opacity:1;stop-color:#ec1c27 icc-color(Adobe RGB (1998), 0.79606628, 0.1333313, 0.16862488);"
+         offset="0.509262"
+         id="stop56" />
+      <stop
+         style="stop-opacity:1;stop-color:#f16622 icc-color(Adobe RGB (1998), 0.83135986, 0.3999939, 0.17254639);"
+         offset="1"
+         id="stop57" />
+    </linearGradient>
+  </defs>
+  <g
+     id="layer-MC0"
+     transform="translate(0,-1248.2554)">
+    <path
+       id="path57"
+       d="M 719.99998,1512.1413 C 434.70799,1512.1413 177.776,1410.2297 0,1248.2554 v 0 512.0993 c 48.690665,22.7114 99.087998,43.1586 151.06933,61.2744 v 0 c 180.368,62.8587 371.78399,94.7313 568.93065,94.7313 v 0 c 197.14666,0 388.56262,-31.8726 568.93062,-94.7313 v 0 c 51.9814,-18.1158 102.3787,-38.563 151.0694,-61.2744 v 0 -512.0993 c -177.776,161.9743 -434.708,263.8859 -720.00002,263.8859"
+       style="fill:url(#linearGradient57);stroke:none;stroke-width:1.21029" />
+  </g>
+</svg>
