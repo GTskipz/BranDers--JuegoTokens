@@ -14,6 +14,8 @@
   user-select: none;
   pointer-events: none;
 
+  transform-origin: 50% 85%;
+
   will-change:
     left,
     top,
@@ -30,7 +32,7 @@
 }
 
 /* =========================
-   TEMBLOR EN REPOSO
+   MOVIMIENTO DE MONEDAS
 ========================= */
 
 .pile-tokens-layer--home,
@@ -38,7 +40,7 @@
 .pile-tokens-layer--prize {
   .pile-token {
     animation:
-      pile-token-shake
+      pile-token-coin-idle
       var(--pile-idle-duration)
       ease-in-out
       var(--pile-idle-delay)
@@ -46,51 +48,46 @@
   }
 }
 
-@keyframes pile-token-shake {
+@keyframes pile-token-coin-idle {
   0%,
   100% {
     translate: 0 0;
     rotate: 0deg;
   }
 
-  18% {
-    translate: -1px 0;
+  22% {
+    translate: 0 -2px;
+    rotate: -0.8deg;
+  }
+
+  45% {
+    translate: 0 0;
+    rotate: 0.5deg;
+  }
+
+  68% {
+    translate: 0 -1px;
     rotate: -0.35deg;
   }
 
-  36% {
-    translate: 1px -1px;
-    rotate: 0.4deg;
-  }
-
-  52% {
-    translate: 0 1px;
-    rotate: -0.2deg;
-  }
-
-  70% {
-    translate: -1px -1px;
-    rotate: 0.3deg;
-  }
-
-  86% {
-    translate: 1px 0;
-    rotate: -0.25deg;
+  84% {
+    translate: 0 0;
+    rotate: 0.2deg;
   }
 }
 
-/* Variaciones para que no compartan el mismo movimiento */
+/* Variaciones sutiles */
 
 .pile-token:nth-child(2n) {
   animation-direction: alternate;
 }
 
 .pile-token:nth-child(3n) {
-  animation-timing-function: linear;
+  transform-origin: 45% 88%;
 }
 
 .pile-token:nth-child(4n) {
-  animation-direction: alternate-reverse;
+  transform-origin: 55% 86%;
 }
 
 /* =========================

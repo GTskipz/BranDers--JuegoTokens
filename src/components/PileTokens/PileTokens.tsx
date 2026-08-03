@@ -59,8 +59,8 @@ export function PileTokens({
           transitionDelay: `${token.transitionDelay}ms`,
 
           // Valores diferentes para que no se muevan todos juntos.
-          "--pile-idle-delay": `${index * -0.17}s`,
-          "--pile-idle-duration": `${0.75 + index * 0.13}s`,
+          "--pile-idle-delay": `${index * -0.28}s`,
+          "--pile-idle-duration": `${1.65 + index * 0.22}s`,
         };
 
         return (

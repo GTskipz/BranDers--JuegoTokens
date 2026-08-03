@@ -2,16 +2,14 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
-  type PointerEvent,
 } from "react";
 
-import tokenFloating01 from "../../assets/tokens/floating/token-floating-01.svg";
-import tokenFloating02 from "../../assets/tokens/floating/token-floating-02.svg";
-import tokenFloating03 from "../../assets/tokens/floating/token-floating-03.svg";
-import tokenFloating04 from "../../assets/tokens/floating/token-floating-04.svg";
-import tokenFloating05 from "../../assets/tokens/floating/token-floating-05.svg";
-import tokenFloating06 from "../../assets/tokens/floating/token-floating-06.svg";
+import type {
+  CSSProperties,
+  PointerEvent,
+} from "react";
+
+import tokenSpinSprite from "../../assets/tokens/token-spin-cycle-sprite.webp";
 
 import "./FallingTokens.scss";
 
@@ -26,29 +24,22 @@ type FallingTokensProps = {
 
 type FallingToken = {
   id: number;
-  image: string;
   x: number;
   size: number;
-  duration: number;
-  rotation: number;
-  points: number;
+  fallDuration: number;
+  spinDuration: number;
+  isCaught: boolean;
 };
 
 type TokenStyle = CSSProperties & {
   "--token-x": string;
   "--token-size": string;
   "--fall-duration": string;
-  "--token-rotation": string;
+  "--spin-duration": string;
 };
 
-const FLOATING_TOKEN_IMAGES = [
-  tokenFloating01,
-  tokenFloating02,
-  tokenFloating03,
-  tokenFloating04,
-  tokenFloating05,
-  tokenFloating06,
-];
+const TOKEN_POINTS = 10;
+const CATCH_ANIMATION_DURATION = 520;
 
 function randomBetween(
   minimum: number,
@@ -57,52 +48,25 @@ function randomBetween(
   return Math.random() * (maximum - minimum) + minimum;
 }
 
-function randomItem<T>(items: T[]): T {
-  return items[Math.floor(Math.random() * items.length)];
-}
-
-function getTokenPoints(
-  duration: number,
-  minimumDuration: number,
-  maximumDuration: number,
-): number {
-  const durationRange = maximumDuration - minimumDuration;
-  const fastLimit = minimumDuration + durationRange * 0.33;
-  const mediumLimit = minimumDuration + durationRange * 0.66;
-
-  if (duration <= fastLimit) {
-    return 30;
-  }
-
-  if (duration <= mediumLimit) {
-    return 20;
-  }
-
-  return 10;
-}
-
 function createToken(
   id: number,
   minimumFallDuration: number,
   maximumFallDuration: number,
 ): FallingToken {
-  const duration = randomBetween(
-    minimumFallDuration,
-    maximumFallDuration,
-  );
-
   return {
     id,
-    image: randomItem(FLOATING_TOKEN_IMAGES),
     x: randomBetween(3, 84),
     size: randomBetween(11, 18),
-    duration,
-    rotation: randomBetween(-900, 900),
-    points: getTokenPoints(
-      duration,
+
+    fallDuration: randomBetween(
       minimumFallDuration,
       maximumFallDuration,
     ),
+
+    // Cada token reproduce el giro a una velocidad distinta.
+    spinDuration: randomBetween(2.7, 4.1),
+
+    isCaught: false,
   };
 }
 
@@ -115,7 +79,9 @@ export function FallingTokens({
   onCatch,
 }: FallingTokensProps) {
   const [tokens, setTokens] = useState<FallingToken[]>([]);
+
   const nextTokenId = useRef(0);
+  const removalTimers = useRef<number[]>([]);
 
   function removeToken(id: number) {
     setTokens((currentTokens) =>
@@ -129,12 +95,28 @@ export function FallingTokens({
   ) {
     event.preventDefault();
 
-    if (!isRunning) {
+    if (!isRunning || token.isCaught) {
       return;
     }
 
-    onCatch(token.points);
-    removeToken(token.id);
+    onCatch(TOKEN_POINTS);
+
+    setTokens((currentTokens) =>
+      currentTokens.map((currentToken) =>
+        currentToken.id === token.id
+          ? {
+              ...currentToken,
+              isCaught: true,
+            }
+          : currentToken,
+      ),
+    );
+
+    const removalTimer = window.setTimeout(() => {
+      removeToken(token.id);
+    }, CATCH_ANIMATION_DURATION);
+
+    removalTimers.current.push(removalTimer);
   }
 
   useEffect(() => {
@@ -143,13 +125,17 @@ export function FallingTokens({
       return;
     }
 
-    const spawnToken = () => {
+    function spawnToken() {
       setTokens((currentTokens) => {
-        if (currentTokens.length >= maxTokens) {
+        const activeTokens = currentTokens.filter(
+          (token) => !token.isCaught,
+        );
+
+        if (activeTokens.length >= maxTokens) {
           return currentTokens;
         }
 
-        const token = createToken(
+        const newToken = createToken(
           nextTokenId.current,
           minimumFallDuration,
           maximumFallDuration,
@@ -157,11 +143,10 @@ export function FallingTokens({
 
         nextTokenId.current += 1;
 
-        return [...currentTokens, token];
+        return [...currentTokens, newToken];
       });
-    };
+    }
 
-    // Genera uno inmediatamente al comenzar cada nivel.
     spawnToken();
 
     const spawnTimer = window.setInterval(
@@ -180,10 +165,22 @@ export function FallingTokens({
     maximumFallDuration,
   ]);
 
+  useEffect(() => {
+    return () => {
+      removalTimers.current.forEach((timer) => {
+        window.clearTimeout(timer);
+      });
+
+      removalTimers.current = [];
+    };
+  }, []);
+
   return (
     <div
       className={`falling-tokens-layer ${
-        isRunning ? "falling-tokens-layer--running" : ""
+        isRunning
+          ? "falling-tokens-layer--running"
+          : ""
       }`}
       aria-hidden={!isRunning}
     >
@@ -191,27 +188,44 @@ export function FallingTokens({
         const tokenStyle: TokenStyle = {
           "--token-x": `${token.x}%`,
           "--token-size": `${token.size}%`,
-          "--fall-duration": `${token.duration}s`,
-          "--token-rotation": `${token.rotation}deg`,
+          "--fall-duration": `${token.fallDuration}s`,
+          "--spin-duration": `${token.spinDuration}s`,
         };
+
+        const tokenClassName = token.isCaught
+          ? "falling-token falling-token--caught"
+          : "falling-token";
 
         return (
           <button
             key={token.id}
-            className="falling-token"
+            className={tokenClassName}
             type="button"
             style={tokenStyle}
-            onPointerDown={(event) =>
-              catchToken(event, token)
-            }
-            onAnimationEnd={() => removeToken(token.id)}
-            aria-label={`Token de ${token.points} puntos`}
+            disabled={token.isCaught}
+            aria-label="Token de 10 puntos"
+            onPointerDown={(event) => {
+              catchToken(event, token);
+            }}
+            onAnimationEnd={(event) => {
+              if (
+                !token.isCaught &&
+                event.animationName === "token-fall"
+              ) {
+                removeToken(token.id);
+              }
+            }}
           >
-            <img
-              src={token.image}
-              alt=""
-              draggable={false}
+            <span
+              className="falling-token__sprite"
+              style={{
+                backgroundImage: `url(${tokenSpinSprite})`,
+              }}
             />
+
+            <span className="falling-token__feedback">
+              +10
+            </span>
           </button>
         );
       })}
