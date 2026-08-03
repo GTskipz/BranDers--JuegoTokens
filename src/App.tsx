@@ -16,9 +16,21 @@ import {
 } from "./components/WaveTransition/WaveTransition";
 import { Game } from "./screens/Game/Game";
 import { HomeScreen } from "./screens/Home/HomeScreen";
+import { InactiveScreen } from "./screens/Inactive/InactiveScreen";
 import { Instructions } from "./screens/Instructions/Instructions";
 import { Prize } from "./screens/Prize/Prize";
 import { Score } from "./screens/Score/Score";
+
+const ADMIN_API = "http://localhost:3001/api";
+
+type AdminConfig = {
+  restaurantName: string;
+  activationName: string;
+  prizeName: string;
+  prizeImageUrl: string | null;
+  logoUrl: string | null;
+  gameDuration: number;
+};
 
 type TransitionPhase =
   | "home"
@@ -41,6 +53,21 @@ function App() {
     useState<number | null>(null);
 
   const [finalScore, setFinalScore] = useState(0);
+
+  const [config, setConfig] = useState<AdminConfig>({
+    restaurantName: "BranDers",
+    activationName: "",
+    prizeName: "Papas medianas",
+    prizeImageUrl: null,
+    logoUrl: null,
+    gameDuration: 60,
+  });
+
+  // 'loading' | 'active' | 'inactive'
+  const [sessionStatus, setSessionStatus] =
+    useState<"loading" | "active" | "inactive">("loading");
+
+  const sessionStartRef = useRef<string | null>(null);
 
   const timers = useRef<number[]>([]);
 
@@ -81,6 +108,7 @@ function App() {
 
     clearTimers();
 
+    sessionStartRef.current = new Date().toISOString();
     setFinalScore(0);
     setCountdown(3);
     setPhase("game-countdown");
@@ -99,16 +127,32 @@ function App() {
     }, 2100);
   }
 
-  const finishGame = useCallback((score: number) => {
-    clearTimers();
+  const finishGame = useCallback(
+    (score: number) => {
+      clearTimers();
 
-    setFinalScore(score);
-    setPhase("score-entering");
+      setFinalScore(score);
+      setPhase("score-entering");
 
-    addTimer(() => {
-      setPhase("score");
-    }, 80);
-  }, []);
+      addTimer(() => {
+        setPhase("score");
+      }, 80);
+
+      // Register session in admin DB
+      fetch(`${ADMIN_API}/sessions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          restaurantName: config.restaurantName,
+          activationName: config.activationName,
+          finalScore: score,
+          completed: true,
+          startedAt: sessionStartRef.current,
+        }),
+      }).catch(() => {});
+    },
+    [config.restaurantName, config.activationName],
+  );
 
   function showPrize() {
     if (phase !== "score") return;
@@ -137,6 +181,25 @@ function App() {
 
   useEffect(() => {
     return clearTimers;
+  }, []);
+
+  // Load config from admin server on mount
+  useEffect(() => {
+    fetch(`${ADMIN_API}/config`)
+      .then((r) => r.json())
+      .then((data: AdminConfig & { sessionStatus?: string }) => {
+        setConfig(data);
+        // 'closed' → show inactive screen; anything else → show game
+        if (data.sessionStatus === "closed") {
+          setSessionStatus("inactive");
+        } else {
+          setSessionStatus("active");
+        }
+      })
+      .catch(() => {
+        // Admin server not running — show game normally
+        setSessionStatus("active");
+      });
   }, []);
 
   const logoClassName =
@@ -228,58 +291,68 @@ function App() {
           <Logo />
         </div>
 
-        {phase !== "instructions" &&
-          phase !== "game-countdown" &&
-          phase !== "game" &&
-          phase !== "score-entering" &&
-          phase !== "score" &&
-          phase !== "prize-entering" &&
-          phase !== "prize" && (
-            <HomeScreen
-              onStart={showInstructions}
-              isLeaving={homeIsLeaving}
-            />
-          )}
+        {/* Show inactive overlay when session is closed */}
+        {sessionStatus === "inactive" && <InactiveScreen />}
 
-        {instructionsIsMounted && (
-          <Instructions
-            onStartGame={startGame}
-            isEntering={!instructionsContentIsVisible}
-          />
-        )}
+        {/* Show game content only when session is active or loading */}
+        {sessionStatus !== "inactive" && (
+          <>
+            {phase !== "instructions" &&
+              phase !== "game-countdown" &&
+              phase !== "game" &&
+              phase !== "score-entering" &&
+              phase !== "score" &&
+              phase !== "prize-entering" &&
+              phase !== "prize" && (
+                <HomeScreen
+                  onStart={showInstructions}
+                  isLeaving={homeIsLeaving}
+                />
+              )}
 
-        {gameIsMounted && (
-          <Game
-            countdown={countdown}
-            onFinish={finishGame}
-          />
-        )}
+            {instructionsIsMounted && (
+              <Instructions
+                onStartGame={startGame}
+                isEntering={!instructionsContentIsVisible}
+              />
+            )}
 
-        {scoreIsMounted && (
-          <Score
-            score={finalScore}
-            isEntering={phase === "score-entering"}
-            onContinue={showPrize}
-          />
-        )}
+            {gameIsMounted && (
+              <Game
+                countdown={countdown}
+                duration={config.gameDuration}
+                onFinish={finishGame}
+              />
+            )}
 
-        {prizeIsMounted && (
-          <Prize
-            prizeName="Papas medianas"
-            isEntering={phase === "prize-entering"}
-            onRedeem={redeemPrize}
-          />
-        )}
+            {scoreIsMounted && (
+              <Score
+                score={finalScore}
+                isEntering={phase === "score-entering"}
+                onContinue={showPrize}
+              />
+            )}
 
-        {showRestartButton && (
-          <button
-            className="restart-button"
-            type="button"
-            onClick={restartApp}
-            aria-label="Volver al inicio"
-          >
-            ↺ Inicio
-          </button>
+            {prizeIsMounted && (
+              <Prize
+                prizeName={config.prizeName}
+                prizeImage={config.prizeImageUrl ?? undefined}
+                isEntering={phase === "prize-entering"}
+                onRedeem={redeemPrize}
+              />
+            )}
+
+            {showRestartButton && (
+              <button
+                className="restart-button"
+                type="button"
+                onClick={restartApp}
+                aria-label="Volver al inicio"
+              >
+                ↺ Inicio
+              </button>
+            )}
+          </>
         )}
       </section>
     </main>

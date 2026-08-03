@@ -1,0 +1,13 @@
+{
+  "restaurantName": "Restaurante Demo",
+  "activationName": "Promo Verano 2025",
+  "prizeName": "Papas medianas",
+  "prizeImageUrl": null,
+  "logoUrl": null,
+  "gameDuration": 60,
+  "levels": {
+    "1": { "spawnInterval": 650, "maxTokens": 10, "minFall": 4.5, "maxFall": 6.5 },
+    "2": { "spawnInterval": 470, "maxTokens": 14, "minFall": 3.4, "maxFall": 5.2 },
+    "3": { "spawnInterval": 320, "maxTokens": 18, "minFall": 2.5, "maxFall": 4.2 }
+  }
+}

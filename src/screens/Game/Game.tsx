@@ -5,6 +5,7 @@ import "./Game.scss";
 
 type GameProps = {
   countdown: number | null;
+  duration?: number;
   onFinish: (score: number) => void;
 };
 
@@ -19,11 +20,12 @@ function formatTime(seconds: number): string {
 
 export function Game({
   countdown,
+  duration = 60,
   onFinish,
 }: GameProps) {
   const engine = useGameEngine({
     isActive: countdown === null,
-    duration: 60,
+    duration,
     onFinish,
   });
 
