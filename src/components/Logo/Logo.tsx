@@ -1,5 +1,5 @@
 import "./Logo.scss";
-import logo from "../../assets/images/logo.svg";
+import logo from "../../assets/images/logo-gradient.svg";
 
 export function Logo() {
   return (

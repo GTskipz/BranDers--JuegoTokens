@@ -34,6 +34,8 @@
   display: grid;
   place-items: center;
 
+  overflow: visible;
+
   background: transparent;
 
   transform: translateY(-130%);
@@ -59,6 +61,9 @@
 ========================= */
 
 .falling-token__sprite {
+  position: relative;
+  z-index: 2;
+
   width: 100%;
   height: 100%;
 
@@ -66,11 +71,6 @@
 
   background-repeat: no-repeat;
   background-position: center top;
-
-  /*
-    Sprite vertical:
-    48 cuadros de 256 × 256 px.
-  */
   background-size: 100% 4800%;
 
   animation:
@@ -90,39 +90,116 @@
 }
 
 /* =========================
-   FEEDBACK DE PUNTOS
+   DESTELLO
+========================= */
+
+.falling-token__flash {
+  position: absolute;
+  z-index: 1;
+
+  top: 50%;
+  left: 50%;
+
+  width: 82%;
+  aspect-ratio: 1;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba($color-white, 0.95) 0%,
+      rgba($mc-yellow, 0.8) 32%,
+      rgba($mc-orange, 0.25) 58%,
+      transparent 74%
+    );
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.35);
+
+  pointer-events: none;
+}
+
+/* =========================
+   TEXTO +10
 ========================= */
 
 .falling-token__feedback {
+  position: absolute;
+  z-index: 6;
+
+  top: 45%;
+  left: 50%;
+
+  color: $color-white;
+
+  font-size: clamp(1.35rem, 6cqw, 2rem);
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+
+  -webkit-text-stroke:
+    clamp(1px, 0.45cqw, 2px)
+    $mc-orange;
+
+  paint-order: stroke fill;
+
+  text-shadow:
+    0 2px 0 rgba($color-black, 0.8),
+    0 4px 8px rgba($color-black, 0.35),
+    0 0 12px rgba($mc-yellow, 0.9);
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.3);
+
+  pointer-events: none;
+}
+
+/* =========================
+   PARTÍCULAS
+========================= */
+
+.falling-token__particles {
   position: absolute;
   z-index: 5;
 
   top: 50%;
   left: 50%;
 
-  min-width: 62px;
-  padding: 7px 12px;
+  width: 1px;
+  height: 1px;
 
-  display: grid;
-  place-items: center;
+  pointer-events: none;
+}
 
-  border-radius: $radius-full;
+.falling-token__particle {
+  position: absolute;
 
-  background: rgba($color-black, 0.88);
-  color: $color-white;
+  top: 0;
+  left: 0;
 
-  font-size: clamp(1rem, 4.5cqw, 1.45rem);
-  font-weight: 900;
-  line-height: 1;
-  white-space: nowrap;
+  width: clamp(4px, 1.5cqw, 8px);
+  aspect-ratio: 1;
+
+  border-radius: 50%;
+
+  background: $mc-yellow;
+
+  box-shadow:
+    0 0 6px rgba($mc-yellow, 0.95),
+    0 0 12px rgba($mc-orange, 0.55);
 
   opacity: 0;
 
   transform:
     translate(-50%, -50%)
-    scale(0.7);
-
-  pointer-events: none;
+    scale(0.4);
 }
 
 /* =========================
@@ -138,16 +215,72 @@
 .falling-token--caught .falling-token__sprite {
   animation:
     token-sprite-caught
-    500ms
+    620ms
     cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+.falling-token--caught .falling-token__flash {
+  animation:
+    token-flash
+    420ms
+    ease-out
     forwards;
 }
 
 .falling-token--caught .falling-token__feedback {
   animation:
     token-feedback
+    620ms
+    cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
+}
+
+.falling-token--caught .falling-token__particle--1 {
+  animation:
+    token-particle-1
+    520ms
+    ease-out
+    forwards;
+}
+
+.falling-token--caught .falling-token__particle--2 {
+  animation:
+    token-particle-2
+    560ms
+    ease-out
+    forwards;
+}
+
+.falling-token--caught .falling-token__particle--3 {
+  animation:
+    token-particle-3
     500ms
-    cubic-bezier(0.22, 1, 0.36, 1)
+    ease-out
+    forwards;
+}
+
+.falling-token--caught .falling-token__particle--4 {
+  animation:
+    token-particle-4
+    570ms
+    ease-out
+    forwards;
+}
+
+.falling-token--caught .falling-token__particle--5 {
+  animation:
+    token-particle-5
+    530ms
+    ease-out
+    forwards;
+}
+
+.falling-token--caught .falling-token__particle--6 {
+  animation:
+    token-particle-6
+    550ms
+    ease-out
     forwards;
 }
 
@@ -166,7 +299,7 @@
 }
 
 /* =========================
-   CICLO REAL DEL SPRITE
+   GIRO DEL SPRITE
 ========================= */
 
 @keyframes token-sprite-spin {
@@ -180,51 +313,120 @@
 }
 
 /* =========================
-   REACCIÓN AL TOQUE
+   REACCIÓN DEL TOKEN
 ========================= */
 
 @keyframes token-sprite-caught {
   0% {
     opacity: 1;
-    transform: scale(1);
-    filter: brightness(1);
+
+    transform:
+      scale(1);
+
+    filter:
+      brightness(1)
+      saturate(1);
   }
 
-  40% {
+  25% {
     opacity: 1;
-    transform: scale(1.22);
-    filter: brightness(1.25);
+
+    transform:
+      scaleX(1.16)
+      scaleY(0.9);
+
+    filter:
+      brightness(1.2)
+      saturate(1.18);
+  }
+
+  50% {
+    opacity: 1;
+
+    transform:
+      scaleX(0.94)
+      scaleY(1.2);
+
+    filter:
+      brightness(1.32)
+      saturate(1.28);
   }
 
   100% {
     opacity: 0;
-    transform: scale(1.42);
-    filter: brightness(1.4);
+
+    transform:
+      scale(1.48);
+
+    filter:
+      brightness(1.45)
+      saturate(1.35);
   }
 }
+
+@keyframes token-flash {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.35);
+  }
+
+  30% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1.15);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1.6);
+  }
+}
+
+/* =========================
+   ANIMACIÓN DEL +10
+========================= */
 
 @keyframes token-feedback {
   0% {
     opacity: 0;
 
     transform:
-      translate(-50%, -20%)
-      scale(0.6);
+      translate(-50%, 10%)
+      scale(0.25)
+      rotate(-8deg);
   }
 
-  20% {
+  22% {
     opacity: 1;
 
     transform:
-      translate(-50%, -70%)
-      scale(1.15);
+      translate(-50%, -55%)
+      scale(1.28)
+      rotate(3deg);
   }
 
-  70% {
+  42% {
     opacity: 1;
 
     transform:
-      translate(-50%, -120%)
+      translate(-50%, -82%)
+      scale(0.96)
+      rotate(0deg);
+  }
+
+  72% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -125%)
       scale(1);
   }
 
@@ -232,8 +434,84 @@
     opacity: 0;
 
     transform:
-      translate(-50%, -180%)
-      scale(0.9);
+      translate(-50%, -210%)
+      scale(0.82);
+  }
+}
+
+/* =========================
+   MOVIMIENTO DE PARTÍCULAS
+========================= */
+
+@keyframes token-particle-1 {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-52px, -48px) scale(1);
+  }
+}
+
+@keyframes token-particle-2 {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(44px, -52px) scale(0.8);
+  }
+}
+
+@keyframes token-particle-3 {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(60px, 4px) scale(1.1);
+  }
+}
+
+@keyframes token-particle-4 {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(38px, 48px) scale(0.85);
+  }
+}
+
+@keyframes token-particle-5 {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-46px, 44px) scale(1);
+  }
+}
+
+@keyframes token-particle-6 {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-62px, 2px) scale(0.8);
   }
 }
 
@@ -244,7 +522,9 @@
 @media (prefers-reduced-motion: reduce) {
   .falling-token,
   .falling-token__sprite,
-  .falling-token__feedback {
-    animation-duration: 1ms;
+  .falling-token__flash,
+  .falling-token__feedback,
+  .falling-token__particle {
+    animation-duration: 1ms !important;
   }
 }

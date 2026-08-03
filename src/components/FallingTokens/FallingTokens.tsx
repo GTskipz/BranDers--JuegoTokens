@@ -39,7 +39,7 @@ type TokenStyle = CSSProperties & {
 };
 
 const TOKEN_POINTS = 10;
-const CATCH_ANIMATION_DURATION = 520;
+const CATCH_ANIMATION_DURATION = 650;
 
 function randomBetween(
   minimum: number,
@@ -63,7 +63,6 @@ function createToken(
       maximumFallDuration,
     ),
 
-    // Cada token reproduce el giro a una velocidad distinta.
     spinDuration: randomBetween(2.7, 4.1),
 
     isCaught: false,
@@ -222,6 +221,17 @@ export function FallingTokens({
                 backgroundImage: `url(${tokenSpinSprite})`,
               }}
             />
+
+            <span className="falling-token__flash" />
+
+            <span className="falling-token__particles">
+              <span className="falling-token__particle falling-token__particle--1" />
+              <span className="falling-token__particle falling-token__particle--2" />
+              <span className="falling-token__particle falling-token__particle--3" />
+              <span className="falling-token__particle falling-token__particle--4" />
+              <span className="falling-token__particle falling-token__particle--5" />
+              <span className="falling-token__particle falling-token__particle--6" />
+            </span>
 
             <span className="falling-token__feedback">
               +10
