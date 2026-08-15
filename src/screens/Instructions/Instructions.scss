@@ -24,13 +24,13 @@
   position: absolute;
   z-index: $z-content;
 
-  top: 19.5%;
-  left: 7%;
+  top: 20%;
+  left: 8%;
 
-  width: 86%;
-  height: 47%;
+  width: 84%;
+  height: 46%;
 
-  padding: 7% 6%;
+  padding: 7.5% 7.5% 6.5%;
 
   border: 14px solid transparent;
   border-radius: 30px;
@@ -41,6 +41,8 @@
 
   color: $color-black;
 
+  overflow: visible;
+
   transform-origin: center top;
 
   transition:
@@ -49,9 +51,19 @@
 }
 
 .instructions-card-content {
-  font-size: clamp(1rem, 2.1vw, 1.8rem);
+  position: relative;
+  z-index: 2;
+
+  width: min(100%, 80%);
+  min-height: 52%;
+  margin: 0 auto 0 8%;
+
+  display: flex;
+  align-items: center;
+
+  font-size: clamp(1.08rem, 2.32vw, 1.95rem);
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.35;
 
   transition:
     opacity 220ms ease,
@@ -60,10 +72,39 @@
 
 .instructions-card-content p {
   margin: 0;
+  text-wrap: balance;
 }
 
 .instructions-card-content p + p {
   margin-top: 9%;
+}
+
+.instructions-card-token {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+
+  width: 24%;
+
+  display: block;
+
+  opacity: 0.96;
+
+  transform:
+    translate(42%, 42%)
+    rotate(18deg)
+    scale(1);
+
+  user-select: none;
+  pointer-events: none;
+
+  animation:
+    instructions-card-token-float
+    2.8s
+    ease-in-out
+    infinite
+    alternate;
 }
 
 /* =========================
@@ -74,7 +115,7 @@
   position: absolute;
   z-index: $z-content;
 
-  top: 73.8%;
+  top: 73.4%;
   left: 50%;
 
   width: 34%;
@@ -118,6 +159,15 @@
     transform: translateY(16px);
   }
 
+  .instructions-card-token {
+    opacity: 0;
+    transform:
+      translate(42%, 52%)
+      translateY(18px)
+      rotate(18deg)
+      scale(0.86);
+  }
+
   .instructions-play-button {
     opacity: 0;
     transform: translateX(-50%) translateY(18px);
@@ -140,9 +190,32 @@
     transition-delay: 280ms;
   }
 
+  .instructions-card-token {
+    opacity: 0.96;
+    transition-delay: 320ms;
+  }
+
   .instructions-play-button {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
     transition-delay: 200ms;
+  }
+}
+
+@keyframes instructions-card-token-float {
+  from {
+    translate: 0 -4px;
+    rotate: 0deg;
+  }
+
+  to {
+    translate: 0 6px;
+    rotate: 2deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .instructions-card-token {
+    animation: none;
   }
 }

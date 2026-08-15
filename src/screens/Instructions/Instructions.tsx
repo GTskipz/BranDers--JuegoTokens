@@ -2,6 +2,7 @@ import {
   GAME_SOUND_IDS,
   gameSoundController,
 } from "../../audio/gameSoundController";
+import { tokenAssets } from "../../assets/tokens/tokenAssets";
 
 import "./Instructions.scss";
 
@@ -31,6 +32,14 @@ export function Instructions({
             Atrapa la mayor cantidad de monedas en la pantalla antes que se acabe el tiempo
           </p>
         </div>
+
+        <img
+          className="instructions-card-token"
+          src={tokenAssets["floating-02"]}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+        />
       </div>
 
       <button
