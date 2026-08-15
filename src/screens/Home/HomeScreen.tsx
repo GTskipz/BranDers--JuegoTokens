@@ -19,6 +19,7 @@ export function HomeScreen({
     : "home-screen";
 
   function handleStart() {
+    gameSoundController.unlock();
     gameSoundController.play(GAME_SOUND_IDS.buttonPress);
     onStart();
   }

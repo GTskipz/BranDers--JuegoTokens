@@ -28,6 +28,40 @@ export const PRIZE_RULES: PrizeDefinition[] = [
   },
 ];
 
+let prizeImagePreloadPromise: Promise<void> | null = null;
+
+export function preloadPrizeImages(): Promise<void> {
+  if (prizeImagePreloadPromise) {
+    return prizeImagePreloadPromise;
+  }
+
+  if (typeof Image === "undefined") {
+    prizeImagePreloadPromise = Promise.resolve();
+    return prizeImagePreloadPromise;
+  }
+
+  prizeImagePreloadPromise = Promise.all(
+    PRIZE_RULES.map(
+      (prize) =>
+        new Promise<void>((resolve) => {
+          const image = new Image();
+
+          image.onload = () => {
+            resolve();
+          };
+
+          image.onerror = () => {
+            resolve();
+          };
+
+          image.src = prize.image;
+        }),
+    ),
+  ).then(() => {});
+
+  return prizeImagePreloadPromise;
+}
+
 export function getPrizeForScore(
   score: number,
 ): PrizeDefinition {

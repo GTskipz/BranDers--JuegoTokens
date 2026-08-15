@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import {
   GAME_SOUND_IDS,
   gameSoundController,
@@ -22,6 +24,12 @@ export function Prize({
     : "prize-screen prize-screen--active";
 
   const prize = getPrizeForScore(score);
+  const [imageIsLoaded, setImageIsLoaded] =
+    useState(false);
+
+  useEffect(() => {
+    setImageIsLoaded(false);
+  }, [prize.image]);
 
   function handleRedeem() {
     gameSoundController.play(GAME_SOUND_IDS.buttonPress);
@@ -35,12 +43,21 @@ export function Prize({
       </h1>
 
       <div className="prize-image-frame">
-        <img
-          className="prize-image"
-          src={prize.image}
-          alt={prize.name}
-          draggable={false}
-        />
+        <div className="prize-image-canvas">
+          <img
+            className={
+              imageIsLoaded
+                ? "prize-image prize-image--loaded"
+                : "prize-image"
+            }
+            src={prize.image}
+            alt={prize.name}
+            draggable={false}
+            onLoad={() => {
+              setImageIsLoaded(true);
+            }}
+          />
+        </div>
       </div>
 
       <div className="prize-name">

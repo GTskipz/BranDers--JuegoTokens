@@ -91,17 +91,24 @@ type SoundPool = {
   nextIndex: number;
 };
 
+type BrowserAudioWindow = Window & {
+  AudioContext?: typeof AudioContext;
+  webkitAudioContext?: typeof AudioContext;
+};
+
 class GameSoundController {
   private isMuted = false;
+  private isUnlocked = false;
   private masterVolume = 1;
   private activeLoops = new Set<GameSoundId>();
   private listeners = new Set<SoundStateListener>();
   private pools = new Map<GameSoundId, SoundPool>();
+  private audioContext: AudioContext | null = null;
   private soundReservations =
     new WeakMap<HTMLAudioElement, number>();
 
   play(soundId: GameSoundId) {
-    if (this.isMuted) {
+    if (this.isMuted || !this.isUnlocked) {
       return;
     }
 
@@ -126,6 +133,19 @@ class GameSoundController {
     sound.play().catch(() => {});
   }
 
+  unlock() {
+    if (this.isUnlocked) {
+      return;
+    }
+
+    this.isUnlocked = true;
+    void this.resumeAudioContext();
+
+    if (!this.isMuted) {
+      this.resumeActiveLoops();
+    }
+  }
+
   playLoop(soundId: GameSoundId) {
     const definition = SOUND_DEFINITIONS[soundId];
 
@@ -135,7 +155,7 @@ class GameSoundController {
 
     this.activeLoops.add(soundId);
 
-    if (this.isMuted) {
+    if (this.isMuted || !this.isUnlocked) {
       return;
     }
 
@@ -183,7 +203,7 @@ class GameSoundController {
 
     if (this.isMuted) {
       this.pauseAllSounds();
-    } else {
+    } else if (this.isUnlocked) {
       this.resumeActiveLoops();
     }
 
@@ -327,6 +347,31 @@ class GameSoundController {
     sound.loop = definition.loop === true;
     sound.volume = this.getSoundVolume(definition);
     return sound;
+  }
+
+  private async resumeAudioContext() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const audioWindow = window as BrowserAudioWindow;
+    const AudioContextConstructor =
+      audioWindow.AudioContext ??
+      audioWindow.webkitAudioContext;
+
+    if (!AudioContextConstructor) {
+      return;
+    }
+
+    if (!this.audioContext) {
+      this.audioContext = new AudioContextConstructor();
+    }
+
+    const audioContext = this.audioContext;
+
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
   }
 
   private getMaxPoolSize(

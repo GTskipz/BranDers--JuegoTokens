@@ -26,6 +26,7 @@ import { Prize } from "./screens/Prize/Prize";
 import { QR } from "./screens/QR/QR";
 import { Score } from "./screens/Score/Score";
 import type { AdminLevelConfigs } from "./engine/useGameEngine";
+import { preloadPrizeImages } from "./prizes/prizeRules";
 
 const ADMIN_API = "http://localhost:3001/api";
 const COUNTDOWN_TWO_DELAY = 930;
@@ -228,6 +229,10 @@ function App() {
   }, []);
 
   useEffect(() => {
+    void preloadPrizeImages();
+  }, []);
+
+  useEffect(() => {
     return gameSoundController.subscribe(setIsAudioMuted);
   }, []);
 
@@ -251,6 +256,7 @@ function App() {
   }, []);
 
   function toggleAudio() {
+    gameSoundController.unlock();
     gameSoundController.toggleMuted();
   }
 
