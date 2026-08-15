@@ -10,11 +10,16 @@ import type {
 } from "react";
 
 import tokenSpinSprite from "../../assets/tokens/token-spin-cycle-sprite.webp";
+import {
+  GAME_SOUND_IDS,
+  gameSoundController,
+} from "../../audio/gameSoundController";
 
 import "./FallingTokens.scss";
 
 type FallingTokensProps = {
   isRunning: boolean;
+  elapsedTime: number;
   spawnInterval: number;
   maxTokens: number;
   minimumFallDuration: number;
@@ -26,6 +31,8 @@ type FallingToken = {
   id: number;
   x: number;
   size: number;
+  points: number;
+  isSpecial: boolean;
   fallDuration: number;
   spinDuration: number;
   isCaught: boolean;
@@ -38,7 +45,9 @@ type TokenStyle = CSSProperties & {
   "--spin-duration": string;
 };
 
-const TOKEN_POINTS = 10;
+const TOKEN_VALUES = [25, 50, 75] as const;
+const SPECIAL_TOKEN_POINTS = 300;
+const SPECIAL_TOKEN_APPEAR_AT = 15;
 const CATCH_ANIMATION_DURATION = 650;
 
 function randomBetween(
@@ -46,6 +55,14 @@ function randomBetween(
   maximum: number,
 ): number {
   return Math.random() * (maximum - minimum) + minimum;
+}
+
+function getRandomTokenValue(): number {
+  const valueIndex = Math.floor(
+    Math.random() * TOKEN_VALUES.length,
+  );
+
+  return TOKEN_VALUES[valueIndex];
 }
 
 function createToken(
@@ -57,6 +74,8 @@ function createToken(
     id,
     x: randomBetween(3, 84),
     size: randomBetween(11, 18),
+    points: getRandomTokenValue(),
+    isSpecial: false,
 
     fallDuration: randomBetween(
       minimumFallDuration,
@@ -69,8 +88,25 @@ function createToken(
   };
 }
 
+function createSpecialToken(
+  id: number,
+  maximumFallDuration: number,
+): FallingToken {
+  return {
+    id,
+    x: randomBetween(8, 78),
+    size: randomBetween(11, 18) * 1.25,
+    points: SPECIAL_TOKEN_POINTS,
+    isSpecial: true,
+    fallDuration: maximumFallDuration * 1.15,
+    spinDuration: randomBetween(2.7, 4.1),
+    isCaught: false,
+  };
+}
+
 export function FallingTokens({
   isRunning,
+  elapsedTime,
   spawnInterval,
   maxTokens,
   minimumFallDuration,
@@ -81,6 +117,7 @@ export function FallingTokens({
 
   const nextTokenId = useRef(0);
   const removalTimers = useRef<number[]>([]);
+  const hasSpawnedSpecialToken = useRef(false);
 
   function removeToken(id: number) {
     setTokens((currentTokens) =>
@@ -98,7 +135,9 @@ export function FallingTokens({
       return;
     }
 
-    onCatch(TOKEN_POINTS);
+    gameSoundController.play(GAME_SOUND_IDS.tokenCatch);
+
+    onCatch(token.points);
 
     setTokens((currentTokens) =>
       currentTokens.map((currentToken) =>
@@ -121,6 +160,7 @@ export function FallingTokens({
   useEffect(() => {
     if (!isRunning) {
       setTokens([]);
+      hasSpawnedSpecialToken.current = false;
       return;
     }
 
@@ -165,6 +205,32 @@ export function FallingTokens({
   ]);
 
   useEffect(() => {
+    if (
+      !isRunning ||
+      hasSpawnedSpecialToken.current ||
+      elapsedTime < SPECIAL_TOKEN_APPEAR_AT
+    ) {
+      return;
+    }
+
+    hasSpawnedSpecialToken.current = true;
+    gameSoundController.play(
+      GAME_SOUND_IDS.specialTokenAppear,
+    );
+
+    setTokens((currentTokens) => {
+      const specialToken = createSpecialToken(
+        nextTokenId.current,
+        maximumFallDuration,
+      );
+
+      nextTokenId.current += 1;
+
+      return [...currentTokens, specialToken];
+    });
+  }, [isRunning, elapsedTime, maximumFallDuration]);
+
+  useEffect(() => {
     return () => {
       removalTimers.current.forEach((timer) => {
         window.clearTimeout(timer);
@@ -191,9 +257,13 @@ export function FallingTokens({
           "--spin-duration": `${token.spinDuration}s`,
         };
 
-        const tokenClassName = token.isCaught
-          ? "falling-token falling-token--caught"
-          : "falling-token";
+        const tokenClassName = [
+          "falling-token",
+          token.isSpecial ? "falling-token--special" : "",
+          token.isCaught ? "falling-token--caught" : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
 
         return (
           <button
@@ -202,7 +272,7 @@ export function FallingTokens({
             type="button"
             style={tokenStyle}
             disabled={token.isCaught}
-            aria-label="Token de 10 puntos"
+            aria-label={`Token de ${token.points} puntos`}
             onPointerDown={(event) => {
               catchToken(event, token);
             }}
@@ -234,7 +304,7 @@ export function FallingTokens({
             </span>
 
             <span className="falling-token__feedback">
-              +10
+              +{token.points}
             </span>
           </button>
         );

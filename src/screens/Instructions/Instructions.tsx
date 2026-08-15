@@ -1,3 +1,8 @@
+import {
+  GAME_SOUND_IDS,
+  gameSoundController,
+} from "../../audio/gameSoundController";
+
 import "./Instructions.scss";
 
 type InstructionsProps = {
@@ -13,17 +18,17 @@ export function Instructions({
     ? "instructions-screen instructions-screen--entering"
     : "instructions-screen instructions-screen--active";
 
+  function handleStartGame() {
+    gameSoundController.play(GAME_SOUND_IDS.buttonPress);
+    onStartGame();
+  }
+
   return (
     <section className={screenClassName}>
       <div className="instructions-card">
         <div className="instructions-card-content">
           <p>
-            Atrapa la mayor cantidad de tokens tocándolos en la pantalla antes
-            de que se acabe el tiempo.
-          </p>
-
-          <p>
-            Acumula puntos, supera cada nivel y demuestra qué tan rápido eres.
+            Atrapa la mayor cantidad de monedas en la pantalla antes que se acabe el tiempo
           </p>
         </div>
       </div>
@@ -31,7 +36,7 @@ export function Instructions({
       <button
         className="instructions-play-button"
         type="button"
-        onClick={onStartGame}
+        onClick={handleStartGame}
         disabled={isEntering}
       >
         Jugar

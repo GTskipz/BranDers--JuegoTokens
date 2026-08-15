@@ -14,14 +14,24 @@ import {
   WaveTransition,
   type WaveState,
 } from "./components/WaveTransition/WaveTransition";
+import {
+  GAME_SOUND_IDS,
+  gameSoundController,
+} from "./audio/gameSoundController";
 import { Game } from "./screens/Game/Game";
 import { HomeScreen } from "./screens/Home/HomeScreen";
 import { InactiveScreen } from "./screens/Inactive/InactiveScreen";
 import { Instructions } from "./screens/Instructions/Instructions";
 import { Prize } from "./screens/Prize/Prize";
+import { QR } from "./screens/QR/QR";
 import { Score } from "./screens/Score/Score";
+import type { AdminLevelConfigs } from "./engine/useGameEngine";
 
 const ADMIN_API = "http://localhost:3001/api";
+const COUNTDOWN_TWO_DELAY = 930;
+const COUNTDOWN_ONE_DELAY = 1810;
+const COUNTDOWN_GO_DELAY = 2700;
+const COUNTDOWN_END_DELAY = 3600;
 
 type AdminConfig = {
   restaurantName: string;
@@ -30,6 +40,7 @@ type AdminConfig = {
   prizeImageUrl: string | null;
   logoUrl: string | null;
   gameDuration: number;
+  levels?: AdminLevelConfigs;
 };
 
 type TransitionPhase =
@@ -43,16 +54,24 @@ type TransitionPhase =
   | "score-entering"
   | "score"
   | "prize-entering"
-  | "prize";
+  | "prize"
+  | "qr-entering"
+  | "qr";
+
+type CountdownValue = 3 | 2 | 1 | "GO" | null;
 
 function App() {
   const [phase, setPhase] =
     useState<TransitionPhase>("home");
 
   const [countdown, setCountdown] =
-    useState<number | null>(null);
+    useState<CountdownValue>(null);
 
   const [finalScore, setFinalScore] = useState(0);
+
+  const [isAudioMuted, setIsAudioMuted] = useState(
+    gameSoundController.getIsMuted(),
+  );
 
   const [config, setConfig] = useState<AdminConfig>({
     restaurantName: "BranDers",
@@ -60,7 +79,7 @@ function App() {
     prizeName: "Papas medianas",
     prizeImageUrl: null,
     logoUrl: null,
-    gameDuration: 60,
+    gameDuration: 30,
   });
 
   // 'loading' | 'active' | 'inactive'
@@ -112,24 +131,38 @@ function App() {
     setFinalScore(0);
     setCountdown(3);
     setPhase("game-countdown");
+    gameSoundController.pause(
+      GAME_SOUND_IDS.menuBackground,
+    );
+    gameSoundController.play(GAME_SOUND_IDS.countdown);
 
     addTimer(() => {
       setCountdown(2);
-    }, 700);
+    }, COUNTDOWN_TWO_DELAY);
 
     addTimer(() => {
       setCountdown(1);
-    }, 1400);
+    }, COUNTDOWN_ONE_DELAY);
+
+    addTimer(() => {
+      setCountdown("GO");
+      setPhase("game");
+      gameSoundController.playLoop(
+        GAME_SOUND_IDS.gameBackground,
+      );
+    }, COUNTDOWN_GO_DELAY);
 
     addTimer(() => {
       setCountdown(null);
-      setPhase("game");
-    }, 2100);
+    }, COUNTDOWN_END_DELAY);
   }
 
   const finishGame = useCallback(
     (score: number) => {
       clearTimers();
+      gameSoundController.pause(
+        GAME_SOUND_IDS.gameBackground,
+      );
 
       setFinalScore(score);
       setPhase("score-entering");
@@ -165,10 +198,15 @@ function App() {
     }, 80);
   }
 
-  function redeemPrize() {
+  function showQr() {
     if (phase !== "prize") return;
 
-    console.log("Canjear premio");
+    clearTimers();
+    setPhase("qr-entering");
+
+    addTimer(() => {
+      setPhase("qr");
+    }, 80);
   }
 
   function restartApp() {
@@ -176,11 +214,21 @@ function App() {
 
     setCountdown(null);
     setFinalScore(0);
+    gameSoundController.pause(
+      GAME_SOUND_IDS.countdown,
+    );
+    gameSoundController.pause(
+      GAME_SOUND_IDS.gameBackground,
+    );
     setPhase("home");
   }
 
   useEffect(() => {
     return clearTimers;
+  }, []);
+
+  useEffect(() => {
+    return gameSoundController.subscribe(setIsAudioMuted);
   }, []);
 
   // Load config from admin server on mount
@@ -202,6 +250,10 @@ function App() {
       });
   }, []);
 
+  function toggleAudio() {
+    gameSoundController.toggleMuted();
+  }
+
   const logoClassName =
     phase === "home"
       ? "shared-logo shared-logo--home"
@@ -209,7 +261,10 @@ function App() {
         ? "shared-logo shared-logo--game"
         : phase === "score-entering" || phase === "score"
           ? "shared-logo shared-logo--score"
-          : phase === "prize-entering" || phase === "prize"
+          : phase === "prize-entering" ||
+              phase === "prize" ||
+              phase === "qr-entering" ||
+              phase === "qr"
             ? "shared-logo shared-logo--prize"
             : "shared-logo shared-logo--instructions";
 
@@ -236,10 +291,16 @@ function App() {
     phase === "prize-entering" ||
     phase === "prize";
 
+  const qrIsMounted =
+    phase === "qr-entering" ||
+    phase === "qr";
+
   const showRestartButton =
     phase !== "home" &&
     phase !== "logo-moving" &&
-    phase !== "waves-moving";
+    phase !== "waves-moving" &&
+    phase !== "qr-entering" &&
+    phase !== "qr";
 
   const waveState: WaveState =
     phase === "home" || phase === "logo-moving"
@@ -260,7 +321,10 @@ function App() {
             ? "game"
             : phase === "score-entering" || phase === "score"
               ? "score"
-              : phase === "prize-entering" || phase === "prize"
+              : phase === "prize-entering" ||
+                  phase === "prize" ||
+                  phase === "qr-entering" ||
+                  phase === "qr"
                 ? "prize"
                 : "hidden";
 
@@ -269,7 +333,10 @@ function App() {
       ? "home"
       : phase === "score-entering" || phase === "score"
         ? "score"
-        : phase === "prize-entering" || phase === "prize"
+        : phase === "prize-entering" ||
+            phase === "prize" ||
+            phase === "qr-entering" ||
+            phase === "qr"
           ? "prize"
           : phase === "instructions-content" ||
               phase === "instructions"
@@ -277,6 +344,46 @@ function App() {
             : phase === "game-countdown" || phase === "game"
               ? "game"
               : "hidden";
+
+  const menuMusicShouldPlay =
+    sessionStatus !== "inactive" &&
+    (phase === "home" ||
+      phase === "logo-moving" ||
+      phase === "waves-moving" ||
+      phase === "instructions-content" ||
+      phase === "instructions" ||
+      phase === "score-entering" ||
+      phase === "score" ||
+      phase === "prize-entering" ||
+      phase === "prize" ||
+      phase === "qr-entering" ||
+      phase === "qr");
+
+  useEffect(() => {
+    if (menuMusicShouldPlay) {
+      gameSoundController.playLoop(
+        GAME_SOUND_IDS.menuBackground,
+      );
+    } else {
+      gameSoundController.pause(
+        GAME_SOUND_IDS.menuBackground,
+      );
+    }
+  }, [menuMusicShouldPlay, phase]);
+
+  useEffect(() => {
+    return () => {
+      gameSoundController.pause(
+        GAME_SOUND_IDS.menuBackground,
+      );
+      gameSoundController.pause(
+        GAME_SOUND_IDS.countdown,
+      );
+      gameSoundController.pause(
+        GAME_SOUND_IDS.gameBackground,
+      );
+    };
+  }, []);
 
   return (
     <main className="app">
@@ -291,6 +398,19 @@ function App() {
           <Logo />
         </div>
 
+        <button
+          className="sound-toggle-button"
+          type="button"
+          onClick={toggleAudio}
+          aria-label={
+            isAudioMuted
+              ? "Activar sonido"
+              : "Desactivar sonido"
+          }
+        >
+          {isAudioMuted ? "🔇" : "🔊"}
+        </button>
+
         {/* Show inactive overlay when session is closed */}
         {sessionStatus === "inactive" && <InactiveScreen />}
 
@@ -303,7 +423,9 @@ function App() {
               phase !== "score-entering" &&
               phase !== "score" &&
               phase !== "prize-entering" &&
-              phase !== "prize" && (
+              phase !== "prize" &&
+              phase !== "qr-entering" &&
+              phase !== "qr" && (
                 <HomeScreen
                   onStart={showInstructions}
                   isLeaving={homeIsLeaving}
@@ -321,6 +443,7 @@ function App() {
               <Game
                 countdown={countdown}
                 duration={config.gameDuration}
+                levels={config.levels}
                 onFinish={finishGame}
               />
             )}
@@ -335,10 +458,17 @@ function App() {
 
             {prizeIsMounted && (
               <Prize
-                prizeName={config.prizeName}
-                prizeImage={config.prizeImageUrl ?? undefined}
+                score={finalScore}
                 isEntering={phase === "prize-entering"}
-                onRedeem={redeemPrize}
+                onRedeem={showQr}
+              />
+            )}
+
+            {qrIsMounted && (
+              <QR
+                score={finalScore}
+                isEntering={phase === "qr-entering"}
+                onPlayAgain={restartApp}
               />
             )}
 

@@ -1,3 +1,8 @@
+import {
+  GAME_SOUND_IDS,
+  gameSoundController,
+} from "../../audio/gameSoundController";
+
 import "./HomeScreen.scss";
 
 type HomeScreenProps = {
@@ -13,16 +18,21 @@ export function HomeScreen({
     ? "home-screen home-screen--leaving"
     : "home-screen";
 
+  function handleStart() {
+    gameSoundController.play(GAME_SOUND_IDS.buttonPress);
+    onStart();
+  }
+
   return (
     <section className={screenClassName}>
       <div className="home-content">
         <button
           className="home-play-button"
           type="button"
-          onClick={onStart}
+          onClick={handleStart}
           disabled={isLeaving}
         >
-          Jugar
+          Juega
         </button>
 
         <h1 className="home-title">

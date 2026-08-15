@@ -1,3 +1,8 @@
+import {
+  GAME_SOUND_IDS,
+  gameSoundController,
+} from "../../audio/gameSoundController";
+
 import "./Score.scss";
 
 type ScoreProps = {
@@ -14,6 +19,11 @@ export function Score({
   const screenClassName = isEntering
     ? "score-screen score-screen--entering"
     : "score-screen score-screen--active";
+
+  function handleContinue() {
+    gameSoundController.play(GAME_SOUND_IDS.buttonPress);
+    onContinue();
+  }
 
   return (
     <section className={screenClassName}>
@@ -33,7 +43,7 @@ export function Score({
       <button
         className="score-prize-button"
         type="button"
-        onClick={onContinue}
+        onClick={handleContinue}
         disabled={isEntering}
       >
         Premio

@@ -1,11 +1,15 @@
 import { FallingTokens } from "../../components/FallingTokens/FallingTokens";
-import { useGameEngine } from "../../engine/useGameEngine";
+import {
+  type AdminLevelConfigs,
+  useGameEngine,
+} from "../../engine/useGameEngine";
 
 import "./Game.scss";
 
 type GameProps = {
-  countdown: number | null;
+  countdown: 3 | 2 | 1 | "GO" | null;
   duration?: number;
+  levels?: AdminLevelConfigs;
   onFinish: (score: number) => void;
 };
 
@@ -20,12 +24,14 @@ function formatTime(seconds: number): string {
 
 export function Game({
   countdown,
-  duration = 60,
+  duration = 30,
+  levels,
   onFinish,
 }: GameProps) {
   const engine = useGameEngine({
-    isActive: countdown === null,
+    isActive: countdown === null || countdown === "GO",
     duration,
+    levels,
     onFinish,
   });
 
@@ -51,6 +57,7 @@ export function Game({
 
       <FallingTokens
         isRunning={engine.isRunning}
+        elapsedTime={engine.elapsedTime}
         spawnInterval={engine.difficulty.spawnInterval}
         maxTokens={engine.difficulty.maxTokens}
         minimumFallDuration={

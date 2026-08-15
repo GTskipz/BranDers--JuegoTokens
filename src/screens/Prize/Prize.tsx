@@ -1,15 +1,19 @@
+import {
+  GAME_SOUND_IDS,
+  gameSoundController,
+} from "../../audio/gameSoundController";
+import { getPrizeForScore } from "../../prizes/prizeRules";
+
 import "./Prize.scss";
 
 type PrizeProps = {
-  prizeName: string;
-  prizeImage?: string;
+  score: number;
   isEntering: boolean;
   onRedeem: () => void;
 };
 
 export function Prize({
-  prizeName,
-  prizeImage,
+  score,
   isEntering,
   onRedeem,
 }: PrizeProps) {
@@ -17,37 +21,36 @@ export function Prize({
     ? "prize-screen prize-screen--entering"
     : "prize-screen prize-screen--active";
 
+  const prize = getPrizeForScore(score);
+
+  function handleRedeem() {
+    gameSoundController.play(GAME_SOUND_IDS.buttonPress);
+    onRedeem();
+  }
+
   return (
     <section className={screenClassName}>
       <h1 className="prize-title">
-        Felicidades
-        <br />
-        te ganaste
+        ¡Felicidades ganaste!
       </h1>
 
       <div className="prize-image-frame">
-        {prizeImage ? (
-          <img
-            className="prize-image"
-            src={prizeImage}
-            alt={prizeName}
-            draggable={false}
-          />
-        ) : (
-          <div className="prize-image-placeholder">
-            Imagen del premio
-          </div>
-        )}
+        <img
+          className="prize-image"
+          src={prize.image}
+          alt={prize.name}
+          draggable={false}
+        />
       </div>
 
       <div className="prize-name">
-        {prizeName}
+        {prize.name}
       </div>
 
       <button
         className="prize-redeem-button"
         type="button"
-        onClick={onRedeem}
+        onClick={handleRedeem}
         disabled={isEntering}
       >
         Canjea tu premio
