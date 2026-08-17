@@ -42,26 +42,28 @@ export function Prize({
         ¡Felicidades ganaste!
       </h1>
 
-      <div className="prize-image-frame">
-        <div className="prize-image-canvas">
-          <img
-            className={
-              imageIsLoaded
-                ? "prize-image prize-image--loaded"
-                : "prize-image"
-            }
-            src={prize.image}
-            alt={prize.name}
-            draggable={false}
-            onLoad={() => {
-              setImageIsLoaded(true);
-            }}
-          />
+      <div className="prize-display">
+        <div className="prize-image-frame">
+          <div className="prize-image-canvas">
+            <img
+              className={
+                imageIsLoaded
+                  ? "prize-image prize-image--loaded"
+                  : "prize-image"
+              }
+              src={prize.image}
+              alt={prize.name}
+              draggable={false}
+              onLoad={() => {
+                setImageIsLoaded(true);
+              }}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="prize-name">
-        {prize.name}
+        <div className="prize-name">
+          {prize.name}
+        </div>
       </div>
 
       <button

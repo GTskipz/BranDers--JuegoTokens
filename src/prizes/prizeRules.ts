@@ -14,14 +14,14 @@ export type PrizeDefinition = {
 export const PRIZE_RULES: PrizeDefinition[] = [
   {
     id: "sundae",
-    name: "Sundae",
+    name: "Sundae de Fresa",
     image: sundaeImage,
     qrImage: sundaeQrImage,
     minimumScore: 0,
   },
   {
     id: "ice-coffee",
-    name: "Ice Coffee",
+    name: "Iced Coffee",
     image: iceCoffeeImage,
     qrImage: iceCoffeeQrImage,
     minimumScore: 2000,
