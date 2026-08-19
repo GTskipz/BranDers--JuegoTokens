@@ -77,6 +77,8 @@ function App() {
     gameSoundController.getIsMuted(),
   );
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   const [config, setConfig] = useState<AdminConfig>({
     restaurantName: "BranDers",
     activationName: "",
@@ -239,6 +241,26 @@ function App() {
     return gameSoundController.subscribe(setIsAudioMuted);
   }, []);
 
+  useEffect(() => {
+    function syncFullscreenState() {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    }
+
+    syncFullscreenState();
+
+    document.addEventListener(
+      "fullscreenchange",
+      syncFullscreenState,
+    );
+
+    return () => {
+      document.removeEventListener(
+        "fullscreenchange",
+        syncFullscreenState,
+      );
+    };
+  }, []);
+
   // Load config from admin server on mount
   useEffect(() => {
     fetch(`${ADMIN_API}/config`)
@@ -261,6 +283,18 @@ function App() {
   function toggleAudio() {
     gameSoundController.unlock();
     gameSoundController.toggleMuted();
+  }
+
+  async function toggleFullscreen() {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch {
+      // Some browser policies can reject fullscreen requests.
+    }
   }
 
   const logoClassName =
@@ -418,6 +452,19 @@ function App() {
           }
         >
           {isAudioMuted ? "🔇" : "🔊"}
+        </button>
+
+        <button
+          className="fullscreen-toggle-button"
+          type="button"
+          onClick={toggleFullscreen}
+          aria-label={
+            isFullscreen
+              ? "Salir de pantalla completa"
+              : "Entrar a pantalla completa"
+          }
+        >
+          {isFullscreen ? "🗗" : "⛶"}
         </button>
 
         {/* Show inactive overlay when session is closed */}

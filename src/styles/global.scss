@@ -117,11 +117,10 @@ img {
 ========================= */
 
 .restart-button,
-.sound-toggle-button {
+.sound-toggle-button,
+.fullscreen-toggle-button {
   position: absolute;
   z-index: 1000;
-
-  bottom: 12px;
 
   display: flex;
   align-items: center;
@@ -154,6 +153,7 @@ img {
 }
 
 .sound-toggle-button {
+  bottom: 12px;
   left: 12px;
 
   width: 34px;
@@ -163,17 +163,31 @@ img {
   font-size: clamp(0.9rem, 2cqw, 1.1rem);
 }
 
+.fullscreen-toggle-button {
+  top: 12px;
+  right: 12px;
+
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+
+  font-size: clamp(1rem, 2.2cqw, 1.2rem);
+}
+
 .restart-button {
+  bottom: 12px;
   left: 56px;
 }
 
 .restart-button:hover,
-.sound-toggle-button:hover {
+.sound-toggle-button:hover,
+.fullscreen-toggle-button:hover {
   opacity: 0.8;
 }
 
 .restart-button:active,
-.sound-toggle-button:active {
+.sound-toggle-button:active,
+.fullscreen-toggle-button:active {
   opacity: 1;
   background: rgba($color-black, 0.9);
   transform: scale(0.96);
