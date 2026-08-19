@@ -26,6 +26,7 @@ import { Prize } from "./screens/Prize/Prize";
 import { QR } from "./screens/QR/QR";
 import { Score } from "./screens/Score/Score";
 import type { AdminLevelConfigs } from "./engine/useGameEngine";
+import { useKioskInputGuards } from "./hooks/useKioskInputGuards";
 import { preloadPrizeImages } from "./prizes/prizeRules";
 
 const ADMIN_API = "http://localhost:3001/api";
@@ -62,6 +63,8 @@ type TransitionPhase =
 type CountdownValue = 3 | 2 | 1 | "GO" | null;
 
 function App() {
+  useKioskInputGuards();
+
   const [phase, setPhase] =
     useState<TransitionPhase>("home");
 
