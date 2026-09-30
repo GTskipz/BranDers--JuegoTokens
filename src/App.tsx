@@ -25,6 +25,7 @@ import { Instructions } from "./screens/Instructions/Instructions";
 import { Prize } from "./screens/Prize/Prize";
 import { QR } from "./screens/QR/QR";
 import { Score } from "./screens/Score/Score";
+import { SurprisePrize } from "./screens/SurprisePrize/SurprisePrize";
 import type { AdminLevelConfigs } from "./engine/useGameEngine";
 import { useKioskInputGuards } from "./hooks/useKioskInputGuards";
 import { preloadPrizeImages } from "./prizes/prizeRules";
@@ -57,13 +58,32 @@ type TransitionPhase =
   | "score"
   | "prize-entering"
   | "prize"
+  | "surprise-entering"
+  | "surprise"
   | "qr-entering"
   | "qr";
 
 type CountdownValue = 3 | 2 | 1 | "GO" | null;
+type GameMode = "qr" | "surprise";
+
+function getInitialGameMode(): GameMode {
+  if (typeof window === "undefined") {
+    return "qr";
+  }
+
+  const mode = new URLSearchParams(
+    window.location.search,
+  ).get("mode");
+
+  return mode === "surprise" ? "surprise" : "qr";
+}
 
 function App() {
   useKioskInputGuards();
+
+  const [gameMode] = useState<GameMode>(
+    getInitialGameMode,
+  );
 
   const [phase, setPhase] =
     useState<TransitionPhase>("home");
@@ -204,6 +224,26 @@ function App() {
     }, 80);
   }
 
+  function showSurprisePrize() {
+    if (phase !== "score") return;
+
+    clearTimers();
+    setPhase("surprise-entering");
+
+    addTimer(() => {
+      setPhase("surprise");
+    }, 80);
+  }
+
+  function showReward() {
+    if (gameMode === "surprise") {
+      showSurprisePrize();
+      return;
+    }
+
+    showPrize();
+  }
+
   function showQr() {
     if (phase !== "prize") return;
 
@@ -306,6 +346,8 @@ function App() {
           ? "shared-logo shared-logo--score"
           : phase === "prize-entering" ||
               phase === "prize" ||
+              phase === "surprise-entering" ||
+              phase === "surprise" ||
               phase === "qr-entering" ||
               phase === "qr"
             ? "shared-logo shared-logo--prize"
@@ -334,6 +376,10 @@ function App() {
     phase === "prize-entering" ||
     phase === "prize";
 
+  const surprisePrizeIsMounted =
+    phase === "surprise-entering" ||
+    phase === "surprise";
+
   const qrIsMounted =
     phase === "qr-entering" ||
     phase === "qr";
@@ -342,6 +388,8 @@ function App() {
     phase !== "home" &&
     phase !== "logo-moving" &&
     phase !== "waves-moving" &&
+    phase !== "surprise-entering" &&
+    phase !== "surprise" &&
     phase !== "qr-entering" &&
     phase !== "qr";
 
@@ -366,6 +414,8 @@ function App() {
               ? "score"
               : phase === "prize-entering" ||
                   phase === "prize" ||
+                  phase === "surprise-entering" ||
+                  phase === "surprise" ||
                   phase === "qr-entering" ||
                   phase === "qr"
                 ? "prize"
@@ -378,6 +428,8 @@ function App() {
         ? "score"
         : phase === "prize-entering" ||
             phase === "prize" ||
+            phase === "surprise-entering" ||
+            phase === "surprise" ||
             phase === "qr-entering" ||
             phase === "qr"
           ? "prize"
@@ -399,6 +451,8 @@ function App() {
       phase === "score" ||
       phase === "prize-entering" ||
       phase === "prize" ||
+      phase === "surprise-entering" ||
+      phase === "surprise" ||
       phase === "qr-entering" ||
       phase === "qr");
 
@@ -480,6 +534,8 @@ function App() {
               phase !== "score" &&
               phase !== "prize-entering" &&
               phase !== "prize" &&
+              phase !== "surprise-entering" &&
+              phase !== "surprise" &&
               phase !== "qr-entering" &&
               phase !== "qr" && (
                 <HomeScreen
@@ -508,7 +564,7 @@ function App() {
               <Score
                 score={finalScore}
                 isEntering={phase === "score-entering"}
-                onContinue={showPrize}
+                onContinue={showReward}
               />
             )}
 
@@ -517,6 +573,13 @@ function App() {
                 score={finalScore}
                 isEntering={phase === "prize-entering"}
                 onRedeem={showQr}
+              />
+            )}
+
+            {surprisePrizeIsMounted && (
+              <SurprisePrize
+                isEntering={phase === "surprise-entering"}
+                onRestart={restartApp}
               />
             )}
 

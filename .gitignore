@@ -41,6 +41,11 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+BranDers-JuegoTokens-Codigo-Fuente/
+no-subir/
+electron/
+electron-release/
+release/
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
